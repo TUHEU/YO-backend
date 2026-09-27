@@ -59,12 +59,12 @@ SLANG_WORDS = {
 }
 
 DETERMINERS = {"the", "this", "that", "dis", "dat", "some", "a", "le", "la", "les"}
-PRONOUNS = {"me", "you", "i", "we", "dem", "na", "this-one"}
+PRONOUNS = {"me", "you", "i", "we", "dem", "na", "on", "this-one"}
 PREPOSITIONS = {"for", "to", "from", "with", "since"}
 CONJUNCTIONS = {"and", "but", "or", "then"}
 
 FRENCH_HINTS = {"le", "la", "les", "de", "du", "des", "et", "est", "un", "une"}
-ENGLISH_HINTS = {"is", "are", "the", "and", "of", "to", "on", "at"}
+ENGLISH_HINTS = {"is", "are", "the", "and", "of", "to", "at"}
 
 WORD_RE = re.compile(r"[A-Za-zÀ-ÿ']+|\d+(?:[.,]\d+)?|[^\sA-Za-zÀ-ÿ0-9]")
 NUMBER_RE = re.compile(r"^\d+(?:[.,]\d+)?$")

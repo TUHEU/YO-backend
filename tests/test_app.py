@@ -71,3 +71,20 @@ def test_translate_endpoint_rejects_bad_direction(client):
 def test_translate_endpoint_rejects_empty_text(client):
     res = client.post("/api/translate", json={"text": "", "direction": "to_french"})
     assert res.status_code == 400
+
+
+def test_translate_endpoint_french_to_english_needs_online(client, monkeypatch):
+    # With the online translator disabled, a direct real-language direction has
+    # no fallback at all and must fail with a clear explanation, not a crash.
+    monkeypatch.setattr(app_module, "ONLINE_TRANSLATION_ENABLED", False)
+    res = client.post("/api/translate", json={"text": "Bonjour", "direction": "french_to_english"})
+    assert res.status_code == 400
+    assert "online" in res.get_json()["error"].lower()
+
+
+def test_translate_endpoint_french_to_english_with_online_enabled(client, monkeypatch):
+    monkeypatch.setattr(app_module, "ONLINE_TRANSLATION_ENABLED", True)
+    monkeypatch.setattr(app_module, "translate_sentence_online", lambda text, src, tgt, timeout_seconds=4.0: "Hello")
+    res = client.post("/api/translate", json={"text": "Bonjour", "direction": "french_to_english"})
+    assert res.status_code == 200
+    assert res.get_json()["translated_text"] == "Hello"

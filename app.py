@@ -21,7 +21,7 @@ import lexer
 import grammar_utils
 import parser_ll1
 import translation
-from online_translation import lookup_online
+from online_translation import lookup_online, translate_sentence_online
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -171,7 +171,13 @@ def parser_test_suite():
 # 5. Translator (Pidgin/Franc-anglais <-> French/English)
 # ---------------------------------------------------------------------------
 
-VALID_DIRECTIONS = {"to_french", "to_english", "from_french", "from_english"}
+VALID_DIRECTIONS = {
+    "to_french", "to_english", "from_french", "from_english",
+    "french_to_english", "english_to_french",
+}
+# Directions with no Pidgin dictionary path at all — these are only possible when
+# the online translator is available, since there is nothing else to fall back on.
+ONLINE_ONLY_DIRECTIONS = {"french_to_english", "english_to_french"}
 
 
 @app.route("/api/translate", methods=["POST"])
@@ -184,13 +190,24 @@ def translate_text():
         return jsonify({"error": "text is required"}), 400
     if direction not in VALID_DIRECTIONS:
         return jsonify({"error": "direction must be one of " + ", ".join(sorted(VALID_DIRECTIONS))}), 400
+    if direction in ONLINE_ONLY_DIRECTIONS and not ONLINE_TRANSLATION_ENABLED:
+        return jsonify({
+            "error": "Direct French \u2194 English translation needs the online translator, "
+                     "which is currently disabled on this server (YO_B_ONLINE_TRANSLATION=false)."
+        }), 400
 
     online_lookup = None
+    sentence_online_lookup = None
     if ONLINE_TRANSLATION_ENABLED:
         def online_lookup(word, target_lang):
             return lookup_online(word, target_lang, timeout_seconds=ONLINE_TRANSLATION_TIMEOUT)
 
-    result = translation.translate(text, direction, online_lookup=online_lookup)
+        def sentence_online_lookup(sentence, source_code, target_code):
+            return translate_sentence_online(sentence, source_code, target_code, timeout_seconds=ONLINE_TRANSLATION_TIMEOUT)
+
+    result = translation.translate(
+        text, direction, online_lookup=online_lookup, sentence_online_lookup=sentence_online_lookup
+    )
     return jsonify(result)
 
 

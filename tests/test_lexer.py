@@ -47,6 +47,14 @@ def test_aux_word_not_classified_as_verb():
     assert by_word["dey"] == "AUX"
 
 
+def test_on_is_classified_as_pronoun():
+    # "on" (French impersonal pronoun, "we"/"one") is common in real Francanglais
+    # speech and must not fall through to a generic English/CODEMIX classification.
+    tokens = lexer.tokenize("On go tchop")
+    by_word = {t["token"].lower(): t["category"] for t in tokens}
+    assert by_word["on"] == "PRON"
+
+
 def test_punctuation_and_numbers_classified_separately():
     tokens = lexer.tokenize("Le prix, 500 francs.")
     cats_seen = {t["category"] for t in tokens}

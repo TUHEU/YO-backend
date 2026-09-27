@@ -20,6 +20,13 @@ def test_forward_translation_to_english_uses_dictionary():
     assert "neighborhood" in result["translated_text"].lower()
 
 
+def test_on_pronoun_is_translated_not_flagged_unresolved():
+    result = translation.translate("On go tchop", "to_english")
+    words = {w["source"]: w for w in result["words"]}
+    assert words["On"]["status"] == "dictionary"
+    assert "one" in words["On"]["translation"].lower() or "we" in words["On"]["translation"].lower()
+
+
 def test_unresolved_word_is_flagged_not_invented():
     result = translation.translate("blahblah quartier", "to_french")
     assert "blahblah" in result["unresolved_words"]
@@ -58,6 +65,40 @@ def test_invalid_direction_raises():
         translation.translate("hello", "sideways")
 
 
+def test_french_to_english_uses_sentence_online_lookup():
+    calls = []
+    def fake_sentence_lookup(text, source, target):
+        calls.append((text, source, target))
+        return "I am going to the market"
+    result = translation.translate("Je vais au marché", "french_to_english", sentence_online_lookup=fake_sentence_lookup)
+    assert result["translated_text"] == "I am going to the market"
+    assert result["used_online_fallback"] is True
+    assert calls == [("Je vais au marché", "fr", "en")]
+
+
+def test_english_to_french_uses_sentence_online_lookup():
+    calls = []
+    def fake_sentence_lookup(text, source, target):
+        calls.append((text, source, target))
+        return "Je vais au marché"
+    result = translation.translate("I am going to the market", "english_to_french", sentence_online_lookup=fake_sentence_lookup)
+    assert result["translated_text"] == "Je vais au marché"
+    assert calls == [("I am going to the market", "en", "fr")]
+
+
+def test_real_language_direction_without_lookup_is_unresolved():
+    result = translation.translate("Je vais au marché", "french_to_english", sentence_online_lookup=None)
+    assert result["used_online_fallback"] is False
+    assert result["translated_text"] == "Je vais au marché"  # unchanged
+    assert result["unresolved_words"] == ["Je vais au marché"]
+
+
+def test_real_language_direction_lookup_failure_is_unresolved():
+    result = translation.translate("Je vais au marché", "french_to_english", sentence_online_lookup=lambda *a: None)
+    assert result["used_online_fallback"] is False
+    assert result["words"][0]["status"] == "unresolved"
+
+
 # --- online_translation.py: the bug fixed in this revision ----------------------
 
 def test_online_lookup_rejects_known_api_error_text():
@@ -80,3 +121,20 @@ def test_online_lookup_never_sends_auto_as_source_language():
     assert "auto" not in online_translation._GUESSED_SOURCE.values()
     assert online_translation._GUESSED_SOURCE["french"] in ("en", "fr")
     assert online_translation._GUESSED_SOURCE["english"] in ("en", "fr")
+
+
+def test_online_lookup_rejects_low_confidence_match():
+    # The second bug: even a well-formed, non-error response can be a wrong guess
+    # (e.g. "YO" -> "OJ", "QUOI" -> "QUOI ?") when the source language was only
+    # guessed. MyMemory's own match score catches this even when the text itself
+    # looks like a plausible word.
+    assert online_translation._match_score({"responseData": {"match": 0.2}}) == 0.2
+    assert online_translation._match_score({"responseData": {}}) == 0.0
+    assert online_translation._MIN_MATCH_SINGLE_WORD >= 0.5
+
+
+def test_online_lookup_echo_check_is_punctuation_insensitive():
+    # "QUOI" -> "QUOI ?" must be treated as an echo (same word, punctuation added),
+    # not a real translation.
+    stripped = "QUOI ?".strip(online_translation._PUNCT_STRIP).lower()
+    assert stripped == "quoi"

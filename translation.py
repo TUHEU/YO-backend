@@ -142,6 +142,8 @@ GLOSSARY = {
             "meaning": "Pidgin third-person plural pronoun"},
     "na":  {"french": "c'est",            "english": "it is / that's",
             "meaning": "Pidgin copula, used to emphasize what follows"},
+    "on":  {"french": "on",               "english": "we / one",
+            "meaning": "French impersonal pronoun, very common in Francanglais speech"},
 
     # --- prepositions ---
     "for":   {"french": "pour / à", "english": "for / at"},
@@ -257,13 +259,48 @@ def render_sentence(words):
     return " ".join(w["translation"] for w in words)
 
 
-def translate(text, direction, online_lookup=None):
+_REAL_LANGUAGE_CODE = {"french": "fr", "english": "en"}
+
+
+def translate(text, direction, online_lookup=None, sentence_online_lookup=None):
     """
-    direction is one of: "to_french", "to_english", "from_french", "from_english".
-    online_lookup(word, target_lang) -> str | None, called only for words the
-    dictionary doesn't cover, and only in the "to_*" (forward) directions — there is
-    no reliable public API to translate a plain word INTO Yaoundé Pidgin.
+    direction is one of:
+      "to_french", "to_english"       — Pidgin/Franc-anglais -> a real language
+      "from_french", "from_english"   — a real language -> Pidgin/Franc-anglais
+      "french_to_english", "english_to_french" — direct translation between two
+                                          real languages (no Pidgin involved at all)
+
+    online_lookup(word, target_lang) -> str | None: a word-level fallback for the
+    "to_*" directions, called only for a word Yo-B's own dictionary doesn't cover.
+    sentence_online_lookup(text, source_code, target_code) -> str | None: a
+    whole-sentence translator for the two real-language directions, where there is
+    no dictionary at all — ordinary machine translation, not a Pidgin gloss.
     """
+    if direction in ("french_to_english", "english_to_french"):
+        source_lang, target_lang = direction.split("_to_")
+        used_online = False
+        if sentence_online_lookup is not None:
+            translated = sentence_online_lookup(
+                text, _REAL_LANGUAGE_CODE[source_lang], _REAL_LANGUAGE_CODE[target_lang]
+            )
+        else:
+            translated = None
+        if translated:
+            used_online = True
+            words = [{"source": text, "translation": translated, "meaning": None, "status": "online"}]
+            unresolved = []
+        else:
+            words = [{"source": text, "translation": text, "meaning": None, "status": "unresolved"}]
+            unresolved = [text]
+        return {
+            "source_text": text,
+            "direction": direction,
+            "translated_text": render_sentence(words),
+            "words": words,
+            "used_online_fallback": used_online,
+            "unresolved_words": unresolved,
+        }
+
     if direction == "to_french":
         words, unresolved = translate_forward(text, "french")
     elif direction == "to_english":

@@ -22,10 +22,19 @@ def test_simple_svo_sentence_is_accepted():
 
 
 def test_verb_only_sentence_is_rejected_with_structured_error():
-    result = run("YO ON GO TCHOP")  # tags to VERB NOUN — no leading NP
+    result = run("YO GO TCHOP")  # YO is CODEMIX (skipped) -> tags to VERB NOUN, no leading NP
     assert result["accepted"] is False
     assert result["error_type"] == "error_no_rule"
     assert result["error_params"]["nonterminal"] == "S"
+
+
+def test_on_is_recognized_as_a_pronoun_and_accepted_as_a_subject():
+    # "on" (the French impersonal pronoun, "we"/"one") is extremely common in real
+    # Francanglais speech and must be usable as a sentence's subject, e.g. "On go
+    # tchop" ("we go eat"). Previously "on" was unclassified (fell through to a
+    # generic English-hint tag) and could not start a sentence at all.
+    result = run("On go tchop")
+    assert result["accepted"] is True
 
 
 def test_every_trace_row_has_structured_action_fields():
