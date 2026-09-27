@@ -146,6 +146,38 @@ GLOSSARY = {
             "meaning": "French impersonal pronoun, very common in Francanglais speech"},
     "quoi": {"french": "quoi",            "english": "what",
              "meaning": "French interrogative pronoun, common in questions like 'on dit quoi ?'"},
+    "qui": {"french": "qui",              "english": "who"},
+
+    # --- other common French function words (used verbatim in Francanglais) ---
+    "où":        {"french": "où", "english": "where"},
+    "quand":     {"french": "quand", "english": "when"},
+    "comment":   {"french": "comment", "english": "how"},
+    "pourquoi":  {"french": "pourquoi", "english": "why"},
+    "combien":   {"french": "combien", "english": "how much / how many"},
+    "bien":      {"french": "bien", "english": "well / good"},
+    "très":      {"french": "très", "english": "very"},
+    "ici":       {"french": "ici", "english": "here"},
+    "là":        {"french": "là", "english": "there"},
+    "ça":        {"french": "ça", "english": "that / it"},
+    "oui":       {"french": "oui", "english": "yes"},
+    "non":       {"french": "non", "english": "no"},
+    "toujours":  {"french": "toujours", "english": "always / still"},
+    "jamais":    {"french": "jamais", "english": "never"},
+    "beaucoup":  {"french": "beaucoup", "english": "a lot / many"},
+    "peu":       {"french": "peu", "english": "little / few"},
+    "tout":      {"french": "tout", "english": "all / everything"},
+    "rien":      {"french": "rien", "english": "nothing"},
+    "maintenant": {"french": "maintenant", "english": "now"},
+    "après":     {"french": "après", "english": "after / afterwards"},
+    "avant":     {"french": "avant", "english": "before"},
+    "aujourd'hui": {"french": "aujourd'hui", "english": "today"},
+
+    # --- greetings / common interjections ---
+    "yo":      {"french": "salut / hé", "english": "hey / yo",
+                "meaning": "informal greeting interjection, common in Francanglais street speech"},
+    "bonjour": {"french": "bonjour", "english": "hello / good morning"},
+    "salut":   {"french": "salut", "english": "hi / bye (informal)"},
+    "merci":   {"french": "merci", "english": "thank you"},
 
     # --- prepositions ---
     "for":   {"french": "pour / à", "english": "for / at"},
@@ -159,6 +191,8 @@ GLOSSARY = {
     "but":  {"french": "mais",        "english": "but"},
     "or":   {"french": "ou",          "english": "or"},
     "then": {"french": "puis / alors","english": "then"},
+    "mais": {"french": "mais",        "english": "but"},
+    "ou":   {"french": "ou",          "english": "or"},
 
     # --- fixed phrases (kept as multiword keys, spaces included) ---
     "small money":     {"french": "un peu d'argent (souvent un pot-de-vin)",

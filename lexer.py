@@ -56,14 +56,21 @@ AUX_WORDS = {"dey", "don", "be", "wan", "fit"}
 SLANG_WORDS = {
     "hmmm", "garrr", "zéro-zéro", "zero-zero", "ekiee", "wesh", "mola",
     "nyanga", "wuna", "sha", "abeg", "oh", "small", "quick", "eh",
+    "yo", "bonjour", "salut", "merci",
 }
 
 DETERMINERS = {"the", "this", "that", "dis", "dat", "some", "a", "le", "la", "les"}
-PRONOUNS = {"me", "you", "i", "we", "dem", "na", "on", "quoi", "this-one"}
+PRONOUNS = {"me", "you", "i", "we", "dem", "na", "on", "quoi", "qui", "this-one"}
 PREPOSITIONS = {"for", "to", "from", "with", "since"}
-CONJUNCTIONS = {"and", "but", "or", "then"}
+CONJUNCTIONS = {"and", "but", "or", "then", "ou", "mais"}
 
-FRENCH_HINTS = {"le", "la", "les", "de", "du", "des", "et", "est", "un", "une"}
+FRENCH_HINTS = {
+    "le", "la", "les", "de", "du", "des", "et", "est", "un", "une",
+    "où", "quand", "comment", "pourquoi", "combien",
+    "bien", "très", "ici", "là", "ça", "oui", "non",
+    "toujours", "jamais", "beaucoup", "peu", "tout", "rien",
+    "maintenant", "après", "avant", "aujourd'hui",
+}
 ENGLISH_HINTS = {"is", "are", "the", "and", "of", "to", "at"}
 
 WORD_RE = re.compile(r"[A-Za-zÀ-ÿ']+|\d+(?:[.,]\d+)?|[^\sA-Za-zÀ-ÿ0-9]")

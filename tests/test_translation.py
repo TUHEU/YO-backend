@@ -34,6 +34,27 @@ def test_quoi_is_translated_not_flagged_unresolved():
     assert words["quoi"]["translation"].lower() == "what"
 
 
+def test_common_french_function_words_are_covered():
+    # A systematic audit found these extremely common French words entirely
+    # missing from the dictionary (falling through to CODEMIX/"not found").
+    # Each must now resolve as a real dictionary entry, not an online guess.
+    words = ["qui", "où", "quand", "comment", "pourquoi", "combien", "bien",
+              "très", "ici", "là", "ça", "oui", "non", "toujours", "jamais",
+              "beaucoup", "peu", "tout", "rien", "maintenant", "après", "avant",
+              "mais", "ou"]
+    for word in words:
+        assert word in translation.GLOSSARY, f"{word!r} missing from GLOSSARY"
+        assert translation.GLOSSARY[word]["english"], f"{word!r} has no english gloss"
+
+
+def test_yo_is_a_real_greeting_interjection_not_invented():
+    # "yo" is attested informal greeting slang (parallel to the existing "wesh"),
+    # not a random invented translation — it now has an honest dictionary entry.
+    result = translation.translate("Yo", "to_english")
+    assert result["words"][0]["status"] == "dictionary"
+    assert "hey" in result["words"][0]["translation"].lower()
+
+
 def test_unresolved_word_is_flagged_not_invented():
     result = translation.translate("blahblah quartier", "to_french")
     assert "blahblah" in result["unresolved_words"]

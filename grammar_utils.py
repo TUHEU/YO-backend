@@ -151,9 +151,9 @@ def analyze_grammar(grammar):
 # ---------------------------------------------------------------------------
 
 DET_WORDS = {"the", "this", "that", "dis", "dat", "some", "a", "le", "la", "les"}
-PRON_WORDS = {"me", "you", "i", "we", "dem", "na", "on", "quoi"}
+PRON_WORDS = {"me", "you", "i", "we", "dem", "na", "on", "quoi", "qui"}
 PREP_WORDS = {"for", "to", "from", "with", "since"}
-CONJ_WORDS = {"and", "but", "or", "then"}
+CONJ_WORDS = {"and", "but", "or", "then", "ou", "mais"}
 
 
 def token_to_terminal(token, category):
