@@ -144,6 +144,8 @@ GLOSSARY = {
             "meaning": "Pidgin copula, used to emphasize what follows"},
     "on":  {"french": "on",               "english": "we / one",
             "meaning": "French impersonal pronoun, very common in Francanglais speech"},
+    "quoi": {"french": "quoi",            "english": "what",
+             "meaning": "French interrogative pronoun, common in questions like 'on dit quoi ?'"},
 
     # --- prepositions ---
     "for":   {"french": "pour / à", "english": "for / at"},

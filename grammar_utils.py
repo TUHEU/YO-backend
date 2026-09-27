@@ -151,7 +151,7 @@ def analyze_grammar(grammar):
 # ---------------------------------------------------------------------------
 
 DET_WORDS = {"the", "this", "that", "dis", "dat", "some", "a", "le", "la", "les"}
-PRON_WORDS = {"me", "you", "i", "we", "dem", "na", "on"}
+PRON_WORDS = {"me", "you", "i", "we", "dem", "na", "on", "quoi"}
 PREP_WORDS = {"for", "to", "from", "with", "since"}
 CONJ_WORDS = {"and", "but", "or", "then"}
 

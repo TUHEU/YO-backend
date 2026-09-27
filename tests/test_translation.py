@@ -27,6 +27,13 @@ def test_on_pronoun_is_translated_not_flagged_unresolved():
     assert "one" in words["On"]["translation"].lower() or "we" in words["On"]["translation"].lower()
 
 
+def test_quoi_is_translated_not_flagged_unresolved():
+    result = translation.translate("On dit quoi", "to_english")
+    words = {w["source"]: w for w in result["words"]}
+    assert words["quoi"]["status"] == "dictionary"
+    assert words["quoi"]["translation"].lower() == "what"
+
+
 def test_unresolved_word_is_flagged_not_invented():
     result = translation.translate("blahblah quartier", "to_french")
     assert "blahblah" in result["unresolved_words"]

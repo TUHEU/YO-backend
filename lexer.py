@@ -59,7 +59,7 @@ SLANG_WORDS = {
 }
 
 DETERMINERS = {"the", "this", "that", "dis", "dat", "some", "a", "le", "la", "les"}
-PRONOUNS = {"me", "you", "i", "we", "dem", "na", "on", "this-one"}
+PRONOUNS = {"me", "you", "i", "we", "dem", "na", "on", "quoi", "this-one"}
 PREPOSITIONS = {"for", "to", "from", "with", "since"}
 CONJUNCTIONS = {"and", "but", "or", "then"}
 
