@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 FRONTEND_DIR = os.path.join(BASE_DIR, "..", "YO frontend")
 
-ONLINE_TRANSLATION_ENABLED = os.environ.get("YO_B_ONLINE_TRANSLATION", "false").strip().lower() in (
+ONLINE_TRANSLATION_ENABLED = os.environ.get("YO_B_ONLINE_TRANSLATION", "true").strip().lower() in (
     "1", "true", "yes", "on",
 )
 ONLINE_TRANSLATION_TIMEOUT = float(os.environ.get("YO_B_ONLINE_TRANSLATION_TIMEOUT", 4.0))
@@ -139,6 +139,8 @@ def _run_parser_on_text(text):
         "skipped_tokens": skipped,
         "accepted": result["accepted"],
         "error": result["error"],
+        "error_type": result["error_type"],
+        "error_params": result["error_params"],
         "trace": result["trace"],
     }
 

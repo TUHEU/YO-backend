@@ -31,7 +31,8 @@ def lookup_online(word, target, timeout_seconds=4.0):
         response = requests.get(
             _MYMEMORY_URL,
             params={"q": word, "langpair": "auto|" + _TARGET_CODE[target]},
-            timeout=timeout_seconds,
+            timeout=(2.0, timeout_seconds),  # (connect timeout, read timeout) — a slow
+                                              # or blocked network must fail fast, not hang
         )
         response.raise_for_status()
         body = response.json()
