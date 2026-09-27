@@ -20,10 +20,17 @@ from flask_cors import CORS
 import lexer
 import grammar_utils
 import parser_ll1
+import translation
+from online_translation import lookup_online
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 FRONTEND_DIR = os.path.join(BASE_DIR, "..", "YO frontend")
+
+ONLINE_TRANSLATION_ENABLED = os.environ.get("YO_B_ONLINE_TRANSLATION", "false").strip().lower() in (
+    "1", "true", "yes", "on",
+)
+ONLINE_TRANSLATION_TIMEOUT = float(os.environ.get("YO_B_ONLINE_TRANSLATION_TIMEOUT", 4.0))
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
@@ -156,6 +163,42 @@ def parser_test_suite():
         "rejected": len(results) - accepted,
         "results": results,
     })
+
+
+# ---------------------------------------------------------------------------
+# 5. Translator (Pidgin/Franc-anglais <-> French/English)
+# ---------------------------------------------------------------------------
+
+VALID_DIRECTIONS = {"to_french", "to_english", "from_french", "from_english"}
+
+
+@app.route("/api/translate", methods=["POST"])
+def translate_text():
+    body = request.get_json(force=True) or {}
+    text = (body.get("text") or "").strip()
+    direction = body.get("direction", "")
+
+    if not text:
+        return jsonify({"error": "text is required"}), 400
+    if direction not in VALID_DIRECTIONS:
+        return jsonify({"error": "direction must be one of " + ", ".join(sorted(VALID_DIRECTIONS))}), 400
+
+    online_lookup = None
+    if ONLINE_TRANSLATION_ENABLED:
+        def online_lookup(word, target_lang):
+            return lookup_online(word, target_lang, timeout_seconds=ONLINE_TRANSLATION_TIMEOUT)
+
+    result = translation.translate(text, direction, online_lookup=online_lookup)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# 6. Health (used by PM2/Nginx to check the process is alive)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":

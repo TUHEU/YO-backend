@@ -103,6 +103,19 @@ def _classify_word(word):
     return "CODEMIX"
 
 
+def _placeholder_letters(n):
+    """Encode `n` (>=1) using only lowercase a-z, so the resulting placeholder is a
+    single run of word characters and survives WORD_RE's tokenization unsplit (unlike
+    a placeholder containing digits, which WORD_RE's separate NUMBER branch would
+    fragment back out into multiple tokens)."""
+    letters = ""
+    while True:
+        n, rem = divmod(n - 1, 26)
+        letters = chr(97 + rem) + letters
+        if n == 0:
+            return letters
+
+
 def tokenize(text):
     """
     Returns a list of {token, category, span} dicts.
@@ -121,7 +134,7 @@ def tokenize(text):
         pattern = re.compile(re.escape(phrase), re.IGNORECASE)
         while pattern.search(working):
             placeholder_id += 1
-            key = "PHRASE{}X".format(placeholder_id)
+            key = "xphrasemarkerx{}x".format(_placeholder_letters(placeholder_id))
             phrase_tags[key] = (pattern.search(working).group(0), PHRASES[phrase])
             working = pattern.sub(" {} ".format(key), working, count=1)
 
