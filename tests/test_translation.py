@@ -133,6 +133,23 @@ def test_online_lookup_rejects_low_confidence_match():
     assert online_translation._MIN_MATCH_SINGLE_WORD >= 0.5
 
 
+def test_online_lookup_never_calls_network_for_very_short_words():
+    # "YO" was observed live to translate to "OJ" with a reportedly high
+    # confidence score from MyMemory — a two-letter chat-speak word is simply too
+    # short for a translation-memory match score to mean anything, so it must be
+    # rejected before any network call is even made (also saves the request).
+    def _must_not_be_called(*args, **kwargs):
+        raise AssertionError("requests.get must not be called for a too-short word")
+    original_get = online_translation.requests.get
+    online_translation.requests.get = _must_not_be_called
+    try:
+        assert online_translation.lookup_online("YO", "french") is None
+        assert online_translation.lookup_online("ok", "english") is None
+    finally:
+        online_translation.requests.get = original_get
+    assert len("YO") < online_translation._MIN_LENGTH_FOR_ONLINE_LOOKUP
+
+
 def test_online_lookup_echo_check_is_punctuation_insensitive():
     # "QUOI" -> "QUOI ?" must be treated as an echo (same word, punctuation added),
     # not a real translation.

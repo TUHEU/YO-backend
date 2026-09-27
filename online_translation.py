@@ -50,7 +50,16 @@ _ERROR_MARKERS = (
 # language (0.0-1.0). Below this, results are frequently a wrong/unrelated word
 # (e.g. "YO" -> "OJ", "QUOI" -> "QUOI ?") rather than an actual translation, so they
 # are rejected exactly like a lexicon miss instead of being shown as an answer.
-_MIN_MATCH_SINGLE_WORD = 0.5
+_MIN_MATCH_SINGLE_WORD = 0.6
+
+# Below this length, MyMemory's translation-memory match score stops being a
+# reliable signal at all: very short strings ("YO", "OK", "na") are frequently
+# confused with unrelated abbreviations or chat-speak in whatever crowdsourced
+# translation memory MyMemory draws from, and can come back with a *high*
+# reported match despite being nonsense for our purposes (observed live: "YO"
+# translated to "OJ"). Below this length, the lookup isn't attempted at all —
+# no confidence score is trusted at this length, so there is nothing to check.
+_MIN_LENGTH_FOR_ONLINE_LOOKUP = 3
 
 _PUNCT_STRIP = " \t\n\r.,!?;:\"'()«»\u201c\u201d\u2019"
 
@@ -69,10 +78,12 @@ def _match_score(body):
 
 def lookup_online(word, target, timeout_seconds=4.0):
     """Best-effort translation of a single word with a *guessed* source language.
-    Returns None on any failure, low-confidence match, or response that isn't
-    confidently a real translation — callers must treat that exactly like 'the
-    dictionary has no entry either'."""
+    Returns None on any failure, low-confidence match, too-short input, or a
+    response that isn't confidently a real translation — callers must treat that
+    exactly like 'the dictionary has no entry either'."""
     if requests is None or not word or not word.strip():
+        return None
+    if len(word.strip()) < _MIN_LENGTH_FOR_ONLINE_LOOKUP:
         return None
     try:
         response = requests.get(
